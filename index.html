@@ -67,6 +67,17 @@ input::placeholder{color:#8A8A8A}
       </div>
     </section>
 
+    <figure lang="tr" onMouseEnter="{{ lvIn }}" onMouseLeave="{{ lvOut }}" style="margin:0 0 clamp(48px,7vw,88px); display:flex; flex-direction:column; gap:12px">
+      <div style="position:relative; width:100%; aspect-ratio:{{ lvAR }}; border-radius:12px; overflow:hidden; background:#1A1A1A">
+        <video ref="{{ lvRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="metadata" poster="assets/yavuz-bewegt-poster.jpg" aria-label="Yavuz Yıldırımtürk konuşurken, sessiz hareketli görüntü" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 35%; display:block; filter:{{ lvFilter }}; transform:{{ lvScale }}; transition:filter 1.2s ease, transform 1.8s cubic-bezier(.45,0,.2,1)">
+          <source src="assets/yavuz-bewegt.webm" type="video/webm">
+          <source src="assets/yavuz-bewegt.mp4" type="video/mp4">
+        </video>
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.45) 100%); pointer-events:none"></div>
+        <span style="position:absolute; left:clamp(14px,2vw,22px); bottom:clamp(12px,1.8vw,18px); font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#FFFFFF; text-shadow:0 1px 3px rgba(0,0,0,.6)">Yavuz Yıldırımtürk</span>
+      </div>
+    </figure>
+
     <section id="videolar" lang="tr" style="display:flex; flex-direction:column; gap:clamp(18px,2.4vw,26px); margin-bottom:clamp(48px,7vw,88px)">
       <div style="display:flex; flex-direction:column; gap:10px">
         <span style="font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#C8372D">Videolar</span>
@@ -385,7 +396,12 @@ const mins=w=>`${Math.max(1,Math.round(w/200))} dk okuma`;
 class Component extends DCLogic {
   state={data:[],q:'',cat:null,sort:null,sel:null,focus:false,w:window.innerWidth,prog:0,hov:null};
   readerRef=React.createRef();
+  lvRef=React.createRef();
   componentDidMount(){
+    {const v=this.lvRef.current;if(v){v.muted=true;v.defaultMuted=true;
+      const mq=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
+      const sync=()=>{if(mq&&mq.matches){v.pause();v.removeAttribute('autoplay')}else{const p=v.play();if(p&&p.catch)p.catch(()=>{})}};
+      sync();if(mq&&mq.addEventListener)mq.addEventListener('change',sync);}}
     fetch('archiv.json').then(r=>r.json()).then(raw=>{
       const junk=/^(yayınlanma tarihi|yayınlandı|posted|etiketler|yorum|paylaş)|^(\d{1,2}[\s./-])?(oca|şub|mar|nis|may|haz|tem|ağu|eyl|eki|kas|ara)[a-zçğıöşü]*\.?\s+\d{1,2},?\s*\d{4}|^\d{1,2}[./]\d{1,2}[./]\d{2,4}|^\d{1,2}\s+[a-zçğıöşü]+\s+\d{4}|^yavuz y[ıi]ld[ıi]r[ıi]m\b/i;
       const data=raw.map(a=>{
@@ -473,6 +489,10 @@ class Component extends DCLogic {
       yCap:this.props.youngCaption??'1960’lar',
       pFilter:this.state.pHover?'grayscale(0.82) sepia(0.12) contrast(1.02) brightness(1.02)':'grayscale(1) contrast(1.05) brightness(0.97)',
       pScale:this.state.young?'scale(1.9)':this.state.pHover?'scale(1.07)':'scale(1)',
+      lvRef:this.lvRef,lvAR:this.state.w>=820?'2/1':this.state.w>=520?'16/9':'4/3',
+      lvIn:()=>this.setState({lvHover:true}),lvOut:()=>this.setState({lvHover:false}),
+      lvFilter:this.state.lvHover?'grayscale(0.82) sepia(0.12) contrast(1.02) brightness(1.02)':'grayscale(1) contrast(1.05) brightness(0.97)',
+      lvScale:this.state.lvHover?'scale(1.03)':'scale(1)',
       vids:VIDS.map(v=>({...v,on:this.state.vid===v.id,off:this.state.vid!==v.id,aria:`${v.title}, videoyu oynat (YouTube)`,
         embed:`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`,play:()=>this.setState({vid:v.id})})),
       cats,q,onQ:e=>this.setState({q:e.target.value}),
