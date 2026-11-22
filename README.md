@@ -5,7 +5,7 @@ Statische Website, kein Build-Schritt nötig. Alle Dateien werden lokal ausgelie
 ## Inhalt
 - `index.html` – die Seite
 - `support.js` – Laufzeit für die Seite
-- `archiv.json` – alle Texte
+- `archiv.json` – Titelliste (Nr., Titel, Datum, Kategorie, Quelle); die Volltexte sind bis zur inhaltlichen Prüfung nicht öffentlich
 - `assets/` – Bilder
 - `fonts/` – Schriften
 - `vendor/` – React (Laufzeitbibliothek, lokal, MIT-Lizenz)
