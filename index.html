@@ -67,6 +67,49 @@ input::placeholder{color:#8A8A8A}
       </div>
     </section>
 
+    <section id="videolar" lang="tr" style="display:flex; flex-direction:column; gap:clamp(18px,2.4vw,26px); margin-bottom:clamp(48px,7vw,88px)">
+      <div style="display:flex; flex-direction:column; gap:10px">
+        <span style="font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#C8372D">Videolar</span>
+        <h2 style="margin:0; font-family:'Literata',serif; font-weight:800; font-size:clamp(26px,2.6vw,32px); line-height:1.12; letter-spacing:-0.01em; color:#1A1A1A; text-wrap:balance">Sesi ve hatırası</h2>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); gap:clamp(16px,2vw,24px)">
+        <sc-for list="{{ vids }}" as="v" hint-placeholder-count="2">
+          <article style="display:flex; flex-direction:column; background:#0B0B0B; color:#FFFFFF; border-radius:12px; overflow:hidden; min-width:0">
+            <div style="position:relative; width:100%; aspect-ratio:16/9; background:#0B0B0B">
+              <sc-if value="{{ v.on }}" hint-placeholder-val="{{ false }}">
+                <iframe src="{{ v.embed }}" title="{{ v.title }}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen="{{ true }}" referrerPolicy="strict-origin-when-cross-origin" style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block"></iframe>
+              </sc-if>
+              <sc-if value="{{ v.off }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ v.play }}" aria-label="{{ v.aria }}" style="position:absolute; inset:0; width:100%; height:100%; border:0; padding:clamp(18px,2.4vw,26px); margin:0; font:inherit; color:#FFFFFF; cursor:pointer; text-align:left; display:flex; flex-direction:column; justify-content:space-between; background:radial-gradient(120% 90% at 85% 15%, #2A1210 0%, #120B0A 45%, #0B0B0B 100%)" style-hover="background:radial-gradient(120% 90% at 85% 15%, #3A1612 0%, #160C0B 45%, #0B0B0B 100%)">
+                  <span style="font-family:'Literata',serif; font-weight:800; font-size:clamp(44px,6vw,72px); line-height:0.9; letter-spacing:-0.02em; color:rgba(239,231,218,0.10)">{{ v.mark }}</span>
+                  <span style="display:flex; align-items:center; gap:14px">
+                    <span style="width:56px; height:56px; border-radius:50%; background:#C8372D; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 6px 24px rgba(200,55,45,.35)">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>
+                    </span>
+                    <span style="display:flex; flex-direction:column; gap:3px; min-width:0">
+                      <span style="font-size:15px; font-weight:600">Videoyu oynat</span>
+                      <span style="font-size:12px; line-height:1.45; color:#9A9A9A; text-wrap:pretty">Tıklayınca video YouTube’dan yüklenir.</span>
+                    </span>
+                  </span>
+                </button>
+              </sc-if>
+            </div>
+            <div style="padding:clamp(18px,2.4vw,26px); display:flex; flex-direction:column; gap:8px; border-top:1px solid #1E1E1E">
+              <span style="font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#E0574A">{{ v.src }}</span>
+              <span style="font-family:'Literata',serif; font-weight:700; font-size:clamp(18px,1.7vw,21px); line-height:1.3; letter-spacing:-0.005em; text-wrap:balance">{{ v.title }}</span>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:14px 24px; padding:clamp(16px,2vw,22px) clamp(18px,2.4vw,26px); border:1px solid #E6E6E6; border-radius:12px">
+        <div style="display:flex; flex-direction:column; gap:4px; min-width:0">
+          <span lang="de" style="font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#767676">Videos</span>
+          <span style="font-family:'Literata',serif; font-size:clamp(16px,1.4vw,18px); line-height:1.5; color:#3A3A3A; text-wrap:pretty">Diğer videolar YouTube kanalında.</span>
+        </div>
+        <a href="https://www.youtube.com/@taylankaya4237" target="_blank" rel="noopener" style="padding:11px 20px; border-radius:999px; background:#1A1A1A; color:#FFFFFF; font-size:15px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:#C8372D">Kanala git <span>→</span></a>
+      </div>
+    </section>
+
     <div onClick="{{ openTeori }}" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); align-items:stretch; background:#0B0B0B; color:#FFFFFF; border-radius:12px; overflow:hidden; cursor:pointer; margin-bottom:clamp(40px,6vw,64px)" style-hover="background:#161414">
       <div style="padding:clamp(24px,3vw,40px); display:flex; flex-direction:column; justify-content:center; gap:12px">
         <span style="font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#E0574A">Arşivin merkezi</span>
@@ -247,7 +290,11 @@ input::placeholder{color:#8A8A8A}
         </div>
         <div style="display:flex; flex-direction:column; gap:8px">
           <span style="font-size:13px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#767676">Keine Cookies, kein Tracking</span>
-          <span style="text-wrap:pretty">Schriftarten werden lokal von diesem Server geladen; es findet keine Verbindung zu Google statt. Es werden keine Cookies und keine Analyse-Werkzeuge eingesetzt. Im Browser wird lediglich lokal gespeichert, welcher Artikel zuletzt geöffnet war; diese Information verlässt Ihr Gerät nicht.</span>
+          <span style="text-wrap:pretty">Schriftarten werden lokal von diesem Server geladen; es findet keine Verbindung zu Google statt (zu YouTube-Videos siehe unten). Es werden keine Cookies und keine Analyse-Werkzeuge eingesetzt. Im Browser wird lediglich lokal gespeichert, welcher Artikel zuletzt geöffnet war; diese Information verlässt Ihr Gerät nicht.</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px">
+          <span style="font-size:13px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#767676">YouTube-Videos</span>
+          <span style="text-wrap:pretty">Auf dieser Seite sind Videos von YouTube (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland) eingebunden. Solange Sie ein Video nicht anklicken, wird keine Verbindung zu YouTube hergestellt. Erst wenn Sie auf „Videoyu oynat“ klicken, wird das Video im erweiterten Datenschutzmodus (youtube-nocookie.com) geladen; dabei werden u. a. Ihre IP-Adresse und technische Daten an YouTube/Google übermittelt, auch in Länder außerhalb der EU, und YouTube kann Daten in Ihrem Browser speichern. Rechtsgrundlage ist Ihre Einwilligung durch den Klick (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG). Der Link zum YouTube-Kanal öffnet YouTube in einem neuen Fenster. Weitere Informationen: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Datenschutzerklärung von Google</a>.</span>
         </div>
         <div style="display:flex; flex-direction:column; gap:8px">
           <span style="font-size:13px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#767676">Ihre Rechte</span>
@@ -319,6 +366,9 @@ const half=c=>`linear-gradient(${c} 50%, transparent 50%)`;
 const solid=c=>c;
 const RED='#C8372D',CREAM='#EFE7DA',INK='#1A1A1A';
 const OCHRE='#E9B949';
+const VIDS=[
+  {id:'B8qJY5tCCOw',src:'Emek Partisi',mark:'Teori',title:'Sosyalizm mücadelesine adanmış bir ömür: Yavuz Yıldırımtürk'},
+  {id:'MEDlhs1FokI',src:'Day-Mer',mark:'1871',title:'149. yılında dünden bugüne Paris Komünü'}];
 const COV={
   'Teori':{bg:'#151515',fg:CREAM,motif:rings(RED),rad:'50%'},
   'Uluslararası':{bg:'#D9542F',fg:'#FFFFFF',motif:stripes(CREAM),rad:'50%'},
@@ -423,6 +473,8 @@ class Component extends DCLogic {
       yCap:this.props.youngCaption??'1960’lar',
       pFilter:this.state.pHover?'grayscale(0.82) sepia(0.12) contrast(1.02) brightness(1.02)':'grayscale(1) contrast(1.05) brightness(0.97)',
       pScale:this.state.young?'scale(1.9)':this.state.pHover?'scale(1.07)':'scale(1)',
+      vids:VIDS.map(v=>({...v,on:this.state.vid===v.id,off:this.state.vid!==v.id,aria:`${v.title}, videoyu oynat (YouTube)`,
+        embed:`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`,play:()=>this.setState({vid:v.id})})),
       cats,q,onQ:e=>this.setState({q:e.target.value}),
       onFocus:()=>this.setState({focus:true}),onBlur:()=>this.setState({focus:false}),
       searchW:open?'220px':'72px',searchBd:open?'#1A1A1A':'transparent',
