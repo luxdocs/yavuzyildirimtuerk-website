@@ -69,11 +69,17 @@ input::placeholder{color:#8A8A8A}
 
     <figure lang="tr" onMouseEnter="{{ lvIn }}" onMouseLeave="{{ lvOut }}" style="margin:0 0 clamp(48px,7vw,88px); display:flex; flex-direction:column; gap:12px">
       <div style="position:relative; width:100%; aspect-ratio:{{ lvAR }}; border-radius:12px; overflow:hidden; background:#1A1A1A">
-        <video ref="{{ lvRef }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="none" poster="assets/yavuz-bewegt-poster.jpg" aria-label="Yavuz Yıldırımtürk konuşurken, sessiz hareketli görüntü" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 35%; display:block; filter:{{ lvFilter }}; transform:{{ lvScale }}; transition:filter 1.2s ease, transform 1.8s cubic-bezier(.45,0,.2,1)">
-          <source src="assets/yavuz-bewegt-voll.webm" type="video/webm">
+        <video ref="{{ lvRef }}" onClick="{{ lvTap }}" muted="{{ true }}" autoPlay="{{ lvAuto }}" loop="{{ true }}" playsInline="{{ true }}" disablePictureInPicture="{{ true }}" preload="metadata" poster="assets/yavuz-bewegt-poster.jpg" aria-label="Yavuz Yıldırımtürk konuşurken, sessiz hareketli görüntü" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 35%; display:block; filter:{{ lvFilter }}; transform:{{ lvScale }}; transition:filter 1.2s ease, transform 1.8s cubic-bezier(.45,0,.2,1)">
           <source src="assets/yavuz-bewegt-voll.mp4" type="video/mp4">
         </video>
         <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.45) 100%); pointer-events:none"></div>
+        <sc-if value="{{ lvBlocked }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ lvTap }}" aria-label="Hareketli görüntüyü başlat" style="position:absolute; inset:0; width:100%; height:100%; border:0; margin:0; padding:0; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center">
+            <span style="width:56px; height:56px; border-radius:50%; background:rgba(200,55,45,.92); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 24px rgba(0,0,0,.35)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>
+            </span>
+          </button>
+        </sc-if>
         <span style="position:absolute; left:clamp(14px,2vw,22px); bottom:clamp(12px,1.8vw,18px); font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#FFFFFF; text-shadow:0 1px 3px rgba(0,0,0,.6)">Yavuz Yıldırımtürk</span>
       </div>
     </figure>
@@ -396,13 +402,24 @@ class Component extends DCLogic {
   state={data:[],q:'',cat:null,sort:null,sel:null,focus:false,w:window.innerWidth,prog:0,hov:null};
   readerRef=React.createRef();
   lvRef=React.createRef();
+  lvReduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  lvSetup(){
+    const v=this.lvRef.current;if(!v||this.lvDone)return;this.lvDone=true;
+    v.muted=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
+    let vis=!('IntersectionObserver' in window);
+    v.addEventListener('playing',()=>{if(this.state.lvBlocked)this.setState({lvBlocked:false})});
+    this.lvSync=()=>{
+      if((this.lvReduce&&!this.lvUser)||!vis){if(!v.paused)v.pause();return}
+      if(!v.paused)return;
+      const p=v.play();
+      if(p&&p.catch)p.catch(()=>{if(v.paused)this.setState({lvBlocked:true})});
+    };
+    if(!vis){this.lvIO=new IntersectionObserver(es=>{vis=es[0].isIntersecting;this.lvSync()},{threshold:0.01});this.lvIO.observe(v)}
+    this.lvSync();
+    if(this.lvReduce)this.setState({lvBlocked:true});
+  }
   componentDidMount(){
-    {const v=this.lvRef.current;if(v){v.muted=true;v.defaultMuted=true;
-      const mq=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
-      let vis=!('IntersectionObserver' in window);
-      const sync=()=>{if((mq&&mq.matches)||!vis){if(!v.paused)v.pause()}else if(v.paused){const p=v.play();if(p&&p.catch)p.catch(()=>{})}};
-      if(!vis){this.lvIO=new IntersectionObserver(es=>{vis=es[0].isIntersecting;sync()},{rootMargin:'200px 0px'});this.lvIO.observe(v)}
-      sync();if(mq&&mq.addEventListener)mq.addEventListener('change',sync);}}
+    this.lvSetup();
     fetch('archiv.json').then(r=>r.json()).then(raw=>{
       const junk=/^(yayınlanma tarihi|yayınlandı|posted|etiketler|yorum|paylaş)|^(\d{1,2}[\s./-])?(oca|şub|mar|nis|may|haz|tem|ağu|eyl|eki|kas|ara)[a-zçğıöşü]*\.?\s+\d{1,2},?\s*\d{4}|^\d{1,2}[./]\d{1,2}[./]\d{2,4}|^\d{1,2}\s+[a-zçğıöşü]+\s+\d{4}|^yavuz y[ıi]ld[ıi]r[ıi]m\b/i;
       const data=raw.map(a=>{
@@ -429,6 +446,7 @@ class Component extends DCLogic {
   }
   componentWillUnmount(){if(this.lvIO)this.lvIO.disconnect();window.removeEventListener('keydown',this.onKey);window.removeEventListener('resize',this.onResize);document.body.style.overflow=''}
   componentDidUpdate(_,ps){
+    this.lvSetup();
     if(ps&&ps.sel!==this.state.sel){
       if(this.readerRef.current)this.readerRef.current.scrollTop=0;
       this.setState({prog:0});
@@ -490,7 +508,9 @@ class Component extends DCLogic {
       yCap:this.props.youngCaption??'1960’lar',
       pFilter:this.state.pHover?'grayscale(0.82) sepia(0.12) contrast(1.02) brightness(1.02)':'grayscale(1) contrast(1.05) brightness(0.97)',
       pScale:this.state.young?'scale(1.9)':this.state.pHover?'scale(1.07)':'scale(1)',
-      lvRef:this.lvRef,lvAR:this.state.w>=820?'2/1':this.state.w>=520?'16/9':'4/3',
+      lvRef:this.lvRef,lvAuto:!this.lvReduce,lvBlocked:!!this.state.lvBlocked,
+      lvTap:()=>{const v=this.lvRef.current;if(!v)return;this.lvUser=true;v.muted=true;const p=v.play();if(p&&p.then)p.then(()=>this.setState({lvBlocked:false})).catch(()=>{});else this.setState({lvBlocked:false})},
+      lvAR:this.state.w>=820?'2/1':this.state.w>=520?'16/9':'4/3',
       lvIn:()=>this.setState({lvHover:true}),lvOut:()=>this.setState({lvHover:false}),
       lvFilter:this.state.lvHover?'grayscale(0.82) sepia(0.12) contrast(1.02) brightness(1.02)':'grayscale(1) contrast(1.05) brightness(0.97)',
       lvScale:this.state.lvHover?'scale(1.03)':'scale(1)',
